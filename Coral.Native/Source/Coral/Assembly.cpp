@@ -62,14 +62,27 @@ namespace Coral {
 		return m_LocalTypes;
 	}
 
-	// TODO(Emily): Massive de-dup needed between `LoadAssembly` and `LoadAssemblyFromMemory`.
 	ManagedAssembly& AssemblyLoadContext::LoadAssembly(std::string_view InFilePath)
 	{
 		auto filepath = String::New(InFilePath);
+		int32_t assemblyId = s_ManagedFunctions.LoadAssemblyFptr(m_ContextId, filepath);
+		String::Free(filepath);
 
-		auto[idx, result] = m_LoadedAssemblies.EmplaceBack();
+		return LoadedAssemblyInternal(assemblyId);
+	}
+
+	ManagedAssembly& AssemblyLoadContext::LoadAssemblyFromMemory(const std::byte* data, int64_t dataLength)
+	{
+		int32_t assemblyId = s_ManagedFunctions.LoadAssemblyFromMemoryFptr(m_ContextId, data, dataLength);
+
+		return LoadedAssemblyInternal(assemblyId);
+	}
+
+	ManagedAssembly& AssemblyLoadContext::LoadedAssemblyInternal(int32_t InAssemblyId)
+	{
+		auto [idx, result] = m_LoadedAssemblies.EmplaceBack();
 		result.m_Host = m_Host;
-		result.m_AssemblyId = s_ManagedFunctions.LoadAssemblyFptr(m_ContextId, filepath);
+		result.m_AssemblyId = InAssemblyId;
 		result.m_OwnerContextId = m_ContextId;
 		result.m_LoadStatus = s_ManagedFunctions.GetLastLoadStatusFptr();
 
@@ -86,9 +99,9 @@ namespace Coral {
 			std::vector<TypeId> typeIds(static_cast<size_t>(typeCount));
 			s_ManagedFunctions.GetAssemblyTypesFptr(m_ContextId, result.m_AssemblyId, typeIds.data(), &typeCount);
 
-			result.m_LocalTypes.reserve(typeIds.size());
-			result.m_LocalTypeIdCache.reserve(typeIds.size());
-			result.m_LocalTypeNameCache.reserve(typeIds.size());
+			result.m_LocalTypes.reserve(typeCount);
+			result.m_LocalTypeIdCache.reserve(typeCount);
+			result.m_LocalTypeNameCache.reserve(typeCount);
 			for (auto typeId : typeIds)
 			{
 				Type type;
@@ -101,38 +114,6 @@ namespace Coral {
 			}
 		}
 
-		String::Free(filepath);
-
 		return result;
 	}
-
-	ManagedAssembly& AssemblyLoadContext::LoadAssemblyFromMemory(const std::byte* data, int64_t dataLength)
-	{
-		auto [idx, result] = m_LoadedAssemblies.EmplaceBack();
-		result.m_Host = m_Host;
-		result.m_AssemblyId = s_ManagedFunctions.LoadAssemblyFromMemoryFptr(m_ContextId, data, dataLength);
-		result.m_LoadStatus = s_ManagedFunctions.GetLastLoadStatusFptr();
-
-		if (result.m_LoadStatus == AssemblyLoadStatus::Success)
-		{
-			auto assemblyName = s_ManagedFunctions.GetAssemblyNameFptr(m_ContextId, result.m_AssemblyId);
-			result.m_Name = assemblyName;
-			String::Free(assemblyName);
-
-			int32_t typeCount = 0;
-			s_ManagedFunctions.GetAssemblyTypesFptr(m_ContextId, result.m_AssemblyId, nullptr, &typeCount);
-			std::vector<TypeId> typeIds(static_cast<size_t>(typeCount));
-			s_ManagedFunctions.GetAssemblyTypesFptr(m_ContextId, result.m_AssemblyId, typeIds.data(), &typeCount);
-
-			for (auto typeId : typeIds)
-			{
-				Type type;
-				type.m_Id = typeId;
-				result.m_Types.push_back(TypeCache::Get().CacheType(std::move(type)));
-			}
-		}
-
-		return result;
-	}
-
 }

@@ -69,6 +69,8 @@ namespace Coral {
 		const StableVector<ManagedAssembly>& GetLoadedAssemblies() const { return m_LoadedAssemblies; }
 
 	private:
+		ManagedAssembly& LoadedAssemblyInternal(int32_t InAssemblyId);
+	private:
 		int32_t m_ContextId;
 		StableVector<ManagedAssembly> m_LoadedAssemblies;
 
