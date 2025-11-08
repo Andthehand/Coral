@@ -471,12 +471,12 @@ int main([[maybe_unused]] int argc, char** argv)
 	RegisterTestInternalCalls(assembly);
 	assembly.UploadInternalCalls();
 
-	auto& testsType = assembly.GetLocalType("Testing.Managed.Tests");
+	auto& testsType = assembly.GetType("Testing.Managed.Tests");
 	g_TestsType = testsType;
 	testsType.InvokeStaticMethod("StaticMethodTest", 50.0f);
 	testsType.InvokeStaticMethod("StaticMethodTest", 1000);
 
-	auto& instanceTestType = assembly.GetLocalType("Testing.Managed.InstanceTest");
+	auto& instanceTestType = assembly.GetType("Testing.Managed.InstanceTest");
 	instance = instanceTestType.CreateInstance();
 	instance.SetFieldValue("X", 500.0f);
 
@@ -484,12 +484,12 @@ int main([[maybe_unused]] int argc, char** argv)
 	testsInstance.InvokeMethod("RunManagedTests");
 	testsInstance.Destroy();
 
-	auto& fieldTestType = assembly.GetLocalType("Testing.Managed.FieldMarshalTest");
+	auto& fieldTestType = assembly.GetType("Testing.Managed.FieldMarshalTest");
 	std::cout << fieldTestType.IsAssignableTo(fieldTestType) << std::endl;
 
 	auto fieldTestObject = fieldTestType.CreateInstance();
 
-	auto dummyClassInstance = assembly.GetLocalType("Testing.Managed.DummyClass").CreateInstance();
+	auto dummyClassInstance = assembly.GetType("Testing.Managed.DummyClass").CreateInstance();
 	dummyClassInstance.SetFieldValue("X", 500.0f);
 
 	struct DummyStruct
@@ -526,7 +526,7 @@ int main([[maybe_unused]] int argc, char** argv)
 		}
 	}
 	
-	auto& memberMethodTestType = assembly.GetLocalType("Testing.Managed.MemberMethodTest");
+	auto& memberMethodTestType = assembly.GetType("Testing.Managed.MemberMethodTest");
 
 	// for (auto methodInfo : memberMethodTestType.GetMethods())
 	// {
@@ -558,8 +558,8 @@ int main([[maybe_unused]] int argc, char** argv)
 	memberMethodTest.Destroy();
 	fieldTestObject.Destroy();
 
-	auto& virtualMethodTestType1 = assembly.GetLocalType("Testing.Managed.Override1");
-	auto& virtualMethodTestType2 = assembly.GetLocalType("Testing.Managed.Override2");
+	auto& virtualMethodTestType1 = assembly.GetType("Testing.Managed.Override1");
+	auto& virtualMethodTestType2 = assembly.GetType("Testing.Managed.Override2");
 
 	auto instance1 = virtualMethodTestType1.CreateInstance();
 	auto instance2 = virtualMethodTestType2.CreateInstance();
@@ -574,15 +574,6 @@ int main([[maybe_unused]] int argc, char** argv)
 	auto loadContext2 = hostInstance.CreateAssemblyLoadContext("ALCTestMulti", testDllPath);
 	auto& multiAssembly = loadContext2.LoadAssembly(assemblyPath.string());
 
-	if (&multiAssembly.GetLocalType("Testing.Managed.DummyClass") != &assembly.GetLocalType("Testing.Managed.DummyClass"))
-	{
-		std::cout << "\033[1;32mMultiple instances of the same DLL seem to be working\033[0m" << std::endl;
-	}
-	else
-	{
-		std::cout << "\033[1;31mType cache is clashing between multiple instances of the same DLL\033[0m" << std::endl;
-	}
-
 	hostInstance.UnloadAssemblyLoadContext(loadContext);
 
 	Coral::GC::Collect();
@@ -593,14 +584,14 @@ int main([[maybe_unused]] int argc, char** argv)
 	RegisterTestInternalCalls(newAssembly);
 	newAssembly.UploadInternalCalls();
 
-	auto& testsType2 = newAssembly.GetLocalType("Testing.Managed.Tests");
+	auto& testsType2 = newAssembly.GetType("Testing.Managed.Tests");
 	g_TestsType = testsType2;
 
-	auto& instanceTestType2 = newAssembly.GetLocalType("Testing.Managed.InstanceTest");
+	auto& instanceTestType2 = newAssembly.GetType("Testing.Managed.InstanceTest");
 	instance = instanceTestType2.CreateInstance();
 	instance.SetFieldValue("X", 500.0f);
 
-	auto& multiInheritanceTestType = newAssembly.GetLocalType("Testing.Managed.MultiInheritanceTest");
+	auto& multiInheritanceTestType = newAssembly.GetType("Testing.Managed.MultiInheritanceTest");
 	std::cout << "Class: " << std::string(multiInheritanceTestType.GetFullName()) << std::endl;
 	std::cout << "\tBase: " << std::string(multiInheritanceTestType.GetBaseType().GetFullName()) << std::endl;
 	std::cout << "\tInterfaces:" << std::endl;

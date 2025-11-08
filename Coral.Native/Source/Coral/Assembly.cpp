@@ -40,26 +40,9 @@ namespace Coral {
 		return type != nullptr ? *type : s_NullType;
 	}
 
-	Type& ManagedAssembly::GetLocalType(std::string_view InClassName) const
-	{
-		auto it = m_LocalTypeNameCache.find(std::string(InClassName));
-		return it == m_LocalTypeNameCache.end() ? s_NullType : *it->second;
-	}
-
-	Type& ManagedAssembly::GetLocalType(TypeId InClassId) const
-	{
-		auto it = m_LocalTypeIdCache.find(InClassId);
-		return it == m_LocalTypeIdCache.end() ? s_NullType : *it->second;
-	}
-
 	const std::vector<Type*>& ManagedAssembly::GetTypes() const
 	{
 		return m_Types;
-	}
-
-	const std::vector<Type>& ManagedAssembly::GetLocalTypes() const
-	{
-		return m_LocalTypes;
 	}
 
 	ManagedAssembly& AssemblyLoadContext::LoadAssembly(std::string_view InFilePath)
@@ -99,18 +82,12 @@ namespace Coral {
 			std::vector<TypeId> typeIds(static_cast<size_t>(typeCount));
 			s_ManagedFunctions.GetAssemblyTypesFptr(m_ContextId, result.m_AssemblyId, typeIds.data(), &typeCount);
 
-			result.m_LocalTypes.reserve(typeCount);
-			result.m_LocalTypeIdCache.reserve(typeCount);
-			result.m_LocalTypeNameCache.reserve(typeCount);
 			for (auto typeId : typeIds)
 			{
 				Type type;
 				type.m_Id = typeId;
 				result.m_Types.push_back(TypeCache::Get().CacheType(std::move(type)));
 
-				Type& inserted = result.m_LocalTypes.emplace_back(std::move(type));
-				result.m_LocalTypeIdCache[inserted.GetTypeId()] = &inserted;
-				result.m_LocalTypeNameCache[inserted.GetFullName()] = &inserted;
 			}
 		}
 
