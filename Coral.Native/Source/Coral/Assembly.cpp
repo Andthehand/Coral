@@ -87,7 +87,6 @@ namespace Coral {
 				Type type;
 				type.m_Id = typeId;
 				result.m_Types.push_back(TypeCache::Get().CacheType(std::move(type)));
-
 			}
 		}
 
