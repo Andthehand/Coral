@@ -56,24 +56,7 @@ endif()
 message(STATUS "Found a suitable .NET runtime, version ${DOTNET_RTVER}")
 
 set(CORAL_ROOT ${CMAKE_CURRENT_LIST_DIR}/..)
-
-file(GLOB CORAL_MANAGED_SRC CONFIGURE_DEPENDS ${CORAL_ROOT}/Coral.Managed/Source/*.cs)
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Coral.Managed.dll ${CMAKE_CURRENT_BINARY_DIR}/Coral.Managed.deps.json ${CMAKE_CURRENT_BINARY_DIR}/Coral.Managed.runtimeconfig.json
-	DEPENDS ${CORAL_MANAGED_SRC} ${CORAL_ROOT}/Coral.Managed/Coral.Managed-Static.csproj
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Building Coral managed code"
-    VERBATIM
-	COMMAND dotnet build ${CORAL_ROOT}/Coral.Managed/Coral.Managed-Static.csproj
-			--artifacts-path ${CMAKE_CURRENT_BINARY_DIR}
-			--output ${CMAKE_CURRENT_BINARY_DIR}
-			--self-contained $<IF:$<CONFIG:Debug>,true,false>
-)
-add_custom_target(CoralManaged DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Coral.Managed.dll)
-
 add_library(Coral.Native STATIC)
-
-add_dependencies(Coral.Native CoralManaged)
 
 set_target_properties(Coral.Native PROPERTIES LINKER_LANGUAGE CXX)
 target_compile_features(Coral.Native PUBLIC cxx_std_17)
