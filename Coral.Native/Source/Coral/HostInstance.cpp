@@ -192,9 +192,15 @@ namespace Coral {
 					continue;
 
 				auto dirPath = dir.path().filename();
-				char version = dirPath.string()[0];
+				const std::string& versionStr = dirPath.string();
+				size_t firstDot = versionStr.find('.');
+				
+				int majorVersion = 0;
+				if (firstDot != std::string::npos) {
+					majorVersion = std::stoi(versionStr.substr(0, firstDot));
+				}
 
-				if (version != '9')
+				if (majorVersion < 9)
 					continue;
 
 				auto res = dir / std::filesystem::path(CORAL_HOSTFXR_NAME);
@@ -248,7 +254,18 @@ namespace Coral {
 	{
 		// Fetch load_assembly_and_get_function_pointer_fn from CoreCLR
 		{
-			auto runtimeConfigPath = std::filesystem::path(m_Settings.CoralDirectory) / "Coral.Managed.runtimeconfig.json";
+            // Replace this line in HostInstance::InitializeCoralManaged():
+            // auto runtimeConfigPath = std::filesystem::path(m_Settings.CoralDirectory) / "Example.Managed.runtimeconfig.json";
+
+            // New code to find any *.runtimeconfig.json file in the CoralDirectory
+            std::filesystem::path runtimeConfigPath;
+            for (const auto& entry : std::filesystem::directory_iterator(m_Settings.CoralDirectory)) {
+				const auto& path = entry.path();
+				if (path.extension() == ".json" && path.filename().string().ends_with(".runtimeconfig.json")) {
+					runtimeConfigPath = path;
+					break;
+				}
+            }
 
 			if (!std::filesystem::exists(runtimeConfigPath))
 			{

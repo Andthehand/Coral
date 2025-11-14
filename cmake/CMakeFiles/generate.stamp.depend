@@ -1,0 +1,5 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/ExternalProject.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake
+C:/Users/sixde/Documents/RealEngine-Editor/CMakeFiles/cmake.verify_globs
+C:/Users/sixde/Documents/RealEngine-Editor/RealEngine/vendor/coral/cmake/CMakeLists.txt
