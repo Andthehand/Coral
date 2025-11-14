@@ -192,9 +192,15 @@ namespace Coral {
 					continue;
 
 				auto dirPath = dir.path().filename();
-				char version = dirPath.string()[0];
+				const std::string& versionStr = dirPath.string();
+				size_t firstDot = versionStr.find('.');
+				
+				int majorVersion = 0;
+				if (firstDot != std::string::npos) {
+					majorVersion = std::stoi(versionStr.substr(0, firstDot));
+				}
 
-				if (version != '9')
+				if (majorVersion < 9)
 					continue;
 
 				auto res = dir / std::filesystem::path(CORAL_HOSTFXR_NAME);
