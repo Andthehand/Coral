@@ -261,7 +261,11 @@ namespace Coral {
             std::filesystem::path runtimeConfigPath;
             for (const auto& entry : std::filesystem::directory_iterator(m_Settings.CoralDirectory)) {
 				const auto& path = entry.path();
-				if (path.extension() == ".json" && path.filename().string().ends_with(".runtimeconfig.json")) {
+
+				const std::string filename = path.filename().string();
+				const std::string suffix = ".runtimeconfig.json";
+				if (path.extension() == ".json" && filename.size() >= suffix.size() &&
+				    filename.compare(filename.size() - suffix.size(), suffix.size(), suffix) == 0) {
 					runtimeConfigPath = path;
 					break;
 				}
