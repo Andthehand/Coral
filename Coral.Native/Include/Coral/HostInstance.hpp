@@ -6,6 +6,7 @@
 #include "ManagedObject.hpp"
 
 #include <functional>
+#include <filesystem>
 
 namespace Coral {
 
@@ -16,7 +17,7 @@ namespace Coral {
 		/// <summary>
 		/// The file path to Coral.runtimeconfig.json (e.g C:\Dev\MyProject\ThirdParty\Coral)
 		/// </summary>
-		std::string CoralDirectory;
+		std::filesystem::path CoralDirectory;
 
 		MessageCallbackFn MessageCallback = nullptr;
 		MessageLevel MessageFilter = MessageLevel::All;
@@ -45,6 +46,7 @@ namespace Coral {
 		// This does not affect the behaviour of LoadAssembly from native code.
 		AssemblyLoadContext CreateAssemblyLoadContext(std::string_view InName, std::string_view InDllPath);
 
+		bool IsInitialized() const { return m_Initialized; }
 	private:
 		bool LoadHostFXR() const;
 		bool InitializeCoralManaged();

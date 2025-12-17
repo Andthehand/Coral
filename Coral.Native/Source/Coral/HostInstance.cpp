@@ -89,6 +89,7 @@ namespace Coral {
 			return CoralInitStatus::CoralManagedInitError;
 		}
 
+		m_Initialized = true;
 		return CoralInitStatus::Success;
 	}
 
